@@ -1,0 +1,505 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: jenkins-ext
+spec:
+  type: LoadBalancer
+  selector:
+    app: jenkins
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: jenkins
+spec:
+  type: ClusterIP
+  selector:
+    app: jenkins
+  ports:
+  - name: name1
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+  - name: name2
+    protocol: TCP
+    port: 50000
+    targetPort: 50000
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: jenkins
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 0
+      initContainers:
+      - name: jenkins-c
+        image: swatolegntu/jenkins4
+        command:
+        - "bash"
+        - "-c"
+        - cp /var/config.xml /var/jenkins_home/config.xml; cp /var/credentials.xml /var/jenkins_home/credentials.xml; cp /var/update-cred.groovy /usr/share/jenkins/ref/init.groovy.d/;
+
+        ports:
+        - containerPort: 8080
+        env:
+          - name: JENKINS_PASS
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: jenkins_pass.txt
+          - name: KUBE_PASS
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: kube_pass.txt
+          - name: IP_KUBE_CL
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: ip_kube_cl.txt
+          - name: KUBE_SERT
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: kube_sert.txt
+          - name: TERRAFORM
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: terraform.txt
+          - name: TF_VAR_PROJECT
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_project.txt
+          - name: TF_VAR_API
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_api.txt
+          - name: TF_VAR_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_password.txt
+          - name: TF_VAR_MONGODB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_mongodb_password.txt
+          - name: TF_VAR_MONGODB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_mongodb_root_password.txt
+          - name: TF_VAR_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_redis_password.txt
+          - name: TF_VAR_R_PASS
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_r_pass.txt
+          - name: TF_VAR_JTOKEN
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_jtoken.txt
+          - name: TF_VAR_BUCKET
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_bucket.txt
+          - name: TF_VAR_API_TELEGRAM
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_api_telegram.txt
+        volumeMounts:
+          - name: jenkins-dada
+            mountPath: "/var/jenkins_home"
+          - name: jenkins-dada
+            mountPath: "/usr/share/jenkins/ref/init.groovy.d/"
+          - name: jenkins-config
+            mountPath: "/var/config.xml"
+            subPath: "config.xml"
+          - name: jenkins-config
+            mountPath: "/var/credentials.xml"
+            subPath: "credentials.xml"
+          - name: jenkins-config
+            mountPath: "/var/update-cred.groovy"
+            subPath: "update-cred.groovy"
+      containers:
+      - name: jenkins
+        image: swatolegntu/jenkins4
+        ports:
+        - containerPort: 8080
+        env:
+          - name: JENKINS_PASS
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: jenkins_pass.txt
+          - name: KUBE_PASS
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: kube_pass.txt
+          - name: IP_KUBE_CL
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: ip_kube_cl.txt
+          - name: KUBE_SERT
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: kube_sert.txt
+          - name: TERRAFORM
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: terraform.txt
+          - name: TF_VAR_PROJECT
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_project.txt
+          - name: TF_VAR_API
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_api.txt
+          - name: TF_VAR_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_password.txt
+          - name: TF_VAR_MONGODB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_mongodb_password.txt
+          - name: TF_VAR_MONGODB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_mongodb_root_password.txt
+          - name: TF_VAR_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_redis_password.txt
+          - name: TF_VAR_R_PASS
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_r_pass.txt
+          - name: TF_VAR_JTOKEN
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_jtoken.txt
+          - name: TF_VAR_BUCKET
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_bucket.txt
+          - name: TF_VAR_API_TELEGRAM
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-pass
+                key: tf_var_api_telegram.txt
+        volumeMounts:
+          - name: jenkins-dada
+            mountPath: "/var/jenkins_home"
+          - name: jenkins-dada
+            mountPath: "/usr/share/jenkins/ref/init.groovy.d/"
+      volumes:
+        - name: jenkins-dada
+          persistentVolumeClaim:
+            claimName: jenkins-pv-claim
+        - name: jenkins-config
+          configMap:
+            name: special-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  config.xml: |
+    <?xml version='1.1' encoding='UTF-8'?>
+    <hudson>
+      <disabledAdministrativeMonitors/>
+      <version>2.164.2</version>
+      <installStateName>RUNNING</installStateName>
+      <numExecutors>2</numExecutors>
+      <mode>NORMAL</mode>
+      <useSecurity>true</useSecurity>
+      <authorizationStrategy class="hudson.security.FullControlOnceLoggedInAuthorizationStrategy">
+        <denyAnonymousReadAccess>false</denyAnonymousReadAccess>
+      </authorizationStrategy>
+      <securityRealm class="hudson.security.HudsonPrivateSecurityRealm">
+        <disableSignup>true</disableSignup>
+        <enableCaptcha>false</enableCaptcha>
+      </securityRealm>
+      <disableRememberMe>true</disableRememberMe>
+      <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
+      <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULL_NAME}</workspaceDir>
+      <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+      <jdks/>
+      <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+      <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+      <quietPeriod>5</quietPeriod>
+      <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+      <views>
+        <hudson.model.AllView>
+          <owner class="hudson" reference="../../.."/>
+          <name>all</name>
+          <filterExecutors>false</filterExecutors>
+          <filterQueue>false</filterQueue>
+          <properties class="hudson.model.View$PropertyList"/>
+        </hudson.model.AllView>
+      </views>
+      <primaryView>all</primaryView>
+      <slaveAgentPort>50000</slaveAgentPort>
+      <label></label>
+      <nodeProperties/>
+      <globalNodeProperties/>
+    </hudson>
+  credentials.xml: |
+    <?xml version='1.1' encoding='UTF-8'?>
+    <com.cloudbees.plugins.credentials.SystemCredentialsProvider plugin="credentials@2.1.18">
+      <domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash">
+        <entry>
+          <com.cloudbees.plugins.credentials.domains.Domain>
+            <specifications/>
+          </com.cloudbees.plugins.credentials.domains.Domain>
+          <java.util.concurrent.CopyOnWriteArrayList>
+            <com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>
+              <scope>GLOBAL</scope>
+              <id>2233</id>
+              <description></description>
+              <username>admin</username>
+              <password>{}</password>
+            </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>
+          </java.util.concurrent.CopyOnWriteArrayList>
+        </entry>
+      </domainCredentialsMap>
+    </com.cloudbees.plugins.credentials.SystemCredentialsProvider>
+  update-cred.groovy: |
+    #!groovy
+
+    // imports
+    import com.cloudbees.plugins.credentials.*
+    import com.cloudbees.plugins.credentials.domains.Domain
+    import com.cloudbees.plugins.credentials.impl.*
+    import hudson.util.Secret
+    import jenkins.model.Jenkins
+    import org.jenkinsci.plugins.plaincredentials.StringCredentials
+    import jenkins.model.*
+    import hudson.security.*
+    import com.cloudbees.plugins.credentials.domains.*;
+    import org.jenkinsci.plugins.plaincredentials.*
+    import org.jenkinsci.plugins.plaincredentials.impl.*
+    import com.cloudbees.plugins.credentials.common.*
+    import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
+
+    def instance = Jenkins.getInstance()
+
+    println "--> creating local user 'admin1'"
+
+    def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+    hudsonRealm.createAccount('admin1', System.getenv('JENKINS_PASS'))
+    instance.setSecurityRealm(hudsonRealm)
+
+    def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+    instance.setAuthorizationStrategy(strategy)
+    instance.save()
+
+    import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
+
+    def changePassword = { username, new_password ->
+        def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+            com.cloudbees.plugins.credentials.common.StandardUsernameCredentials.class,
+            jenkins.model.Jenkins.instance
+        )
+
+        def c = creds.findResult { it.username == username ? it : null }
+
+        if ( c ) {
+            println "found credential ${c.id} for username ${c.username}"
+
+            def credentials_store = jenkins.model.Jenkins.instance.getExtensionList(
+                'com.cloudbees.plugins.credentials.SystemCredentialsProvider'
+                )[0].getStore()
+
+            def result = credentials_store.updateCredentials(
+                com.cloudbees.plugins.credentials.domains.Domain.global(),
+                c,
+                new UsernamePasswordCredentialsImpl(c.scope, c.id, c.description, c.username, new_password)
+                )
+
+            if (result) {
+                println "password changed for ${username}"
+            } else {
+                println "failed to change password for ${username}"
+            }
+        } else {
+          println "could not find credential for ${username}"
+        }
+    }
+
+    changePassword("admin", System.getenv('KUBE_PASS'))
+
+
+    import hudson.model.*
+    import jenkins.model.*
+    import org.csanchez.jenkins.plugins.kubernetes.*
+    import org.csanchez.jenkins.plugins.kubernetes.volumes.workspace.EmptyDirWorkspaceVolume
+    import org.csanchez.jenkins.plugins.kubernetes.volumes.HostPathVolume
+    import org.csanchez.jenkins.plugins.kubernetes.PodEnvVar
+
+    //change after testing
+    //ConfigObject conf = new ConfigSlurper().parse(new File(System.getenv("JENKINS_HOME") + '/jenkins_config/kubernetes.txt').text)
+
+    def kc
+    try {
+        println("Configuring k8s")
+
+        kc = new KubernetesCloud("kubernetes")
+        Jenkins.instance.clouds.add(kc)
+
+        kc.setContainerCapStr("10")
+        kc.setServerUrl(System.getenv('IP_KUBE_CL'))
+        kc.setServerCertificate(System.getenv('KUBE_SERT'))
+        kc.setSkipTlsVerify(true)
+        kc.setJenkinsUrl("http://jenkins.default.svc:8080")
+        kc.setCredentialsId("2233")
+        kc.setRetentionTimeout(5)
+        kc.setReadTimeout(15)
+        println "set templates"
+        // kc.templates.clear()
+
+        kc = null
+        println("Configuring k8s completed")
+    }
+    finally {
+        //if we don't null kc, jenkins will try to serialise k8s objects and that will fail, so we won't see actual error
+        kc = null
+    }
+
+
+    Credentials terraform = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "terraform",
+    "description",
+    Secret.fromString(System.getenv('TERRAFORM'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), terraform)
+
+
+    Credentials TF_VAR_project = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_project",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_PROJECT'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_project)
+
+
+    Credentials TF_VAR_API = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_API",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_API'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_API)
+
+
+    Credentials TF_VAR_password = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_password",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_PASSWORD'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_password)
+
+
+    Credentials TF_VAR_MONGODB_PASSWORD = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_MONGODB_PASSWORD",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_MONGODB_PASSWORD'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_MONGODB_PASSWORD)
+
+
+    Credentials TF_VAR_MONGODB_ROOT_PASSWORD = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_MONGODB_ROOT_PASSWORD",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_MONGODB_ROOT_PASSWORD'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_MONGODB_ROOT_PASSWORD)
+
+
+    Credentials TF_VAR_REDIS_PASSWORD = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_REDIS_PASSWORD",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_REDIS_PASSWORD'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_REDIS_PASSWORD)
+
+
+    Credentials TF_VAR_r_pass = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_r_pass",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_R_PASS'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_r_pass)
+
+
+    Credentials TF_VAR_jtoken = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_jtoken",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_JTOKEN'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_jtoken)
+
+
+    Credentials TF_VAR_bucket = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_bucket",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_BUCKET'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_bucket)
+
+
+    Credentials TF_VAR_api_telegram = (Credentials) new StringCredentialsImpl(
+    CredentialsScope.GLOBAL,
+    "TF_VAR_api_telegram",
+    "description",
+    Secret.fromString(System.getenv('TF_VAR_API_TELEGRAM'))
+    )
+    SystemCredentialsProvider.getInstance().getStore().addCredentials(Domain.global(), TF_VAR_api_telegram)
